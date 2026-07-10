@@ -190,11 +190,27 @@ def main(argv: list[str]) -> int:
 
         total = 0
         failed_rows = 0
+        prev_date = None  # date_debut valide de la ligne précédente.
+        prev_raw = None
         for row in reader:
             total += 1
             # line_num = ligne physique dans le fichier (en-tête = ligne 1).
             line = reader.line_num
             errors = validate_row(row)
+
+            # Contrôle du tri croissant par date_debut (uniquement entre
+            # lignes dont la date_debut est valide).
+            date_debut_raw = (row.get("date_debut") or "").strip()
+            date_debut = parse_date(date_debut_raw)
+            if date_debut is not None:
+                if prev_date is not None and date_debut < prev_date:
+                    errors.append(
+                        f"lignes non triées : date_debut « {date_debut_raw} » "
+                        f"antérieure à la ligne précédente « {prev_raw} »"
+                    )
+                prev_date = date_debut
+                prev_raw = date_debut_raw
+
             if errors:
                 failed_rows += 1
                 nom = (row.get("nom") or "").strip() or "(sans nom)"

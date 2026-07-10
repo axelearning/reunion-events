@@ -35,8 +35,9 @@ Chaque pull request et chaque push sur `main` déclenche le workflow
 [`scripts/validate_csv.py`](scripts/validate_csv.py). Le script vérifie le
 format des dates, la présence du `nom`, l'appartenance des `communes` aux 24
 communes de La Réunion (ou `ALL`), la `categorie` (`Culture`, `Sport`,
-`Religieux`, `Jour férié`) et la validité du `lien`. Les lignes fautives sont
-annotées directement dans la pull request.
+`Religieux`, `Jour férié`), la validité du `lien` et le tri croissant des
+lignes par `date_debut`. Les lignes fautives sont annotées directement dans la
+pull request.
 
 Pour valider en local :
 
