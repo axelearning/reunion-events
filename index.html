@@ -138,7 +138,7 @@
   <div class="filters">
     <select id="cat" aria-label="Filtrer par catégorie"></select>
     <select id="commune" aria-label="Filtrer par commune"></select>
-    <button id="today" class="today" hidden>à venir</button>
+    <button id="today" class="today" hidden>tout voir</button>
   </div>
 </header>
 
@@ -219,7 +219,7 @@ function fmtRange(e) {
 const now = new Date();
 const todayIso = iso(now);
 let all = [];
-let fCat = "", fCommune = "", fUpcoming = false;
+let fCat = "", fCommune = "", fUpcoming = true;
 
 function filtered() {
   return all
@@ -255,6 +255,8 @@ function initFilters() {
   document.getElementById("commune").onchange = e => { fCommune = e.target.value; render(); };
   const todayBtn = document.getElementById("today");
   todayBtn.hidden = false;
+  todayBtn.textContent = fUpcoming ? "tout voir" : "à venir";
+  todayBtn.setAttribute("aria-pressed", String(fUpcoming));
   todayBtn.onclick = () => {
     fUpcoming = !fUpcoming;
     todayBtn.textContent = fUpcoming ? "tout voir" : "à venir";
