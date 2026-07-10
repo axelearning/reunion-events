@@ -25,11 +25,11 @@
     --primary: #4a6fa5;
     --primary-fg: #ffffff;
 
-    /* — États « signal » → une catégorie, une couleur (bg + texte) — */
-    --Culture-bg: #e6eef8;           --Culture-fg: #2c5490;
-    --Sport-bg: #e8f3ec;             --Sport-fg: #2f7d4f;
-    --Religieux-bg: #f6efe2;         --Religieux-fg: #7a5d20;
-    --Ferie-bg: rgba(220,74,74,.10); --Ferie-fg: #991b1b;
+    /* — États « signal » → une catégorie, une couleur (bg + texte + point) — */
+    --Culture-bg: #e6eef8;           --Culture-fg: #2c5490;   --Culture-dot: #4a6fa5;
+    --Sport-bg: #e8f3ec;             --Sport-fg: #2f7d4f;     --Sport-dot: #3f9d63;
+    --Religieux-bg: #f6efe2;         --Religieux-fg: #7a5d20; --Religieux-dot: #b3872f;
+    --Ferie-bg: rgba(220,74,74,.10); --Ferie-fg: #991b1b;     --Ferie-dot: #dc4a4a;
 
     /* — Échelle de rayons — */
     --r-badge: 3px; --r-sm: 5px; --r-md: 6px; --r-lg: 8px; --r-xl: 12px; --r-2xl: 16px;
@@ -49,7 +49,7 @@
   }
   * { box-sizing: border-box; }
   body {
-    font: 16px/1.5 var(--font-sans); margin: 0 auto; padding: 2rem 1.25rem; max-width: 64rem;
+    font: 16px/1.5 var(--font-sans); margin: 0 auto; padding: 2rem 1.25rem; max-width: 48rem;
     min-height: 100vh; display: flex; flex-direction: column; background: var(--background); color: var(--foreground);
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   }
@@ -65,36 +65,46 @@
   }
   .today { margin-left: auto; color: var(--muted-fg); background: none; }
   select:hover, .today:hover { background: var(--muted); }
-  select:active, .today:active, .nav button:active { transform: scale(.98); }
+  select:active, .today:active { transform: scale(.98); }
 
-  .card { margin-top: 1rem; flex: 1; display: flex; flex-direction: column; border: 1px solid var(--muted); border-radius: var(--r-xl); background: var(--card); padding: 1rem; }
-  .nav { display: flex; align-items: center; justify-content: center; gap: .25rem; margin-bottom: .75rem; }
-  .nav button { font: inherit; width: 2.75rem; height: 2.75rem; border: 0; border-radius: var(--r-md); background: none; color: var(--muted-fg); cursor: pointer; font-size: 1.3rem; transition: background var(--motion-micro) var(--ease-standard), transform var(--motion-micro) var(--ease-standard); }
-  .nav button:hover { background: var(--muted); }
-  .nav h2 { margin: 0; min-width: 10rem; text-align: center; font-size: 1.125rem; font-weight: 700; }
+  .card { margin-top: 1rem; flex: 1; display: flex; flex-direction: column; border: 1px solid var(--muted); border-radius: var(--r-xl); background: var(--card); padding: .5rem; }
 
-  .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
-  #days { flex: 1; }
-  .wd { padding: .375rem 0; text-align: center; font: 600 11px/1 var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-fg); }
-  .day {
-    display: flex; flex-direction: column; padding: .375rem; border: 0; border-radius: var(--r-sm);
-    background: var(--cell); text-align: left; cursor: pointer; color: inherit; overflow: hidden;
-    transition: transform var(--motion-micro) var(--ease-standard), box-shadow var(--motion-micro) var(--ease-standard);
+  /* — Agenda (schedule) — */
+  .schedule { display: flex; flex-direction: column; }
+  .month-head {
+    position: sticky; top: 0; z-index: 1; background: var(--card);
+    padding: .85rem .75rem .35rem; display: flex; align-items: baseline; gap: .5rem;
   }
-  .day:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-  .day.out { visibility: hidden; pointer-events: none; }
-  .day.past { opacity: .4; filter: saturate(.3); }
-  /* Aujourd'hui : liseré discret + numéro en accent (pas de pastille pleine — comme le prototype). */
-  .day.today { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--muted-fg) 30%, transparent); }
-  .daynum { align-self: flex-start; font-size: 11px; font-weight: 500; color: var(--muted-fg); }
-  .day.today .daynum { font-weight: 700; color: var(--primary); }
-  .chips { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
-  .chip {
-    display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    padding: 1px 4px; border-radius: var(--r-sm); font-size: 10px; line-height: 1.35;
-    background: var(--tint); color: var(--fg);
+  .month-head h2 { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: -.01em; text-transform: capitalize; }
+  .month-head .count { font-size: 11px; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
+
+  .row {
+    display: grid; grid-template-columns: 3.25rem auto 1fr; align-items: center; gap: .75rem;
+    width: 100%; text-align: left; border: 0; border-radius: var(--r-lg); background: none; color: inherit;
+    padding: .6rem .75rem; cursor: pointer;
+    transition: background var(--motion-micro) var(--ease-standard), transform var(--motion-micro) var(--ease-standard);
   }
-  .more { padding: 0 4px; font-size: 10px; color: var(--muted-fg); }
+  .row + .row { border-top: 1px solid var(--muted); border-radius: 0; }
+  .row:hover { background: var(--cell); }
+  .row:active { transform: scale(.995); }
+  .row.past { opacity: .5; filter: saturate(.5); }
+  .row.today { background: color-mix(in srgb, var(--primary) 7%, transparent); }
+
+  .when { text-align: center; line-height: 1.05; }
+  .when .d { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .when .wd { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-fg); }
+  .today .when .d { color: var(--primary); }
+
+  /* Point coloré lié à la catégorie */
+  .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--dot); flex-shrink: 0; box-shadow: 0 0 0 3px color-mix(in srgb, var(--dot) 15%, transparent); }
+
+  .body { min-width: 0; }
+  .row h3 { margin: 0; font-size: .95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meta { margin: .15rem 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .6rem; font-size: .78rem; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
+  .meta .cat { color: var(--fg); font-weight: 500; }
+  .meta .sep { color: var(--border-strong); }
+
+  .empty { text-align: center; color: var(--muted-fg); font-size: .9rem; padding: 3rem 1rem; }
 
   dialog {
     width: 100%; max-width: 28rem; border: 1px solid var(--border-strong); border-radius: var(--r-2xl);
@@ -105,20 +115,17 @@
   @keyframes slide-up { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { dialog[open] { animation: none; } }
   .dhead { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; margin-bottom: 1rem; }
-  .dhead h3 { margin: .15rem 0 0; font-size: 1.125rem; font-weight: 700; text-transform: capitalize; letter-spacing: -.01em; }
+  .dhead h3 { margin: .15rem 0 0; font-size: 1.125rem; font-weight: 700; letter-spacing: -.01em; }
   .close { border: 0; background: none; font-size: 1.2rem; cursor: pointer; color: var(--muted-fg); padding: .25rem; }
   .close:hover { color: inherit; }
-  .evlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .6rem; }
-  .ev { border: 1px solid var(--border); border-radius: var(--r-lg); padding: .7rem .8rem; background: var(--card-elevated); }
-  .evtop { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; }
-  .ev h4 { margin: 0; font-size: .95rem; font-weight: 600; }
+  .devlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .35rem; }
+  .devlist li { display: flex; align-items: center; gap: .5rem; font-size: .9rem; }
   .badge { flex-shrink: 0; padding: 2px 6px; border-radius: var(--r-badge); font-size: 11px; background: var(--tint); color: var(--fg); white-space: nowrap; }
-  .ev .loc { margin: .4rem 0 0; font-size: .875rem; color: var(--text-secondary); }
-  .ev .dates { margin: .15rem 0 0; font: .78rem/1.4 var(--font-sans); font-variant-numeric: tabular-nums; color: var(--muted-fg); }
-  .ev a, footer a { color: var(--primary); text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 4px; transition: text-decoration-color var(--motion-micro), color var(--motion-micro); }
-  .ev a { font-size: .78rem; }
-  .ev a:hover, footer a:hover { text-decoration-color: var(--primary); }
-  .noev { color: var(--muted-fg); font-size: .9rem; }
+  .drow .loc { margin: .6rem 0 0; font-size: .875rem; color: var(--text-secondary); }
+  .drow .dates { margin: .15rem 0 0; font: .78rem/1.4 var(--font-sans); font-variant-numeric: tabular-nums; color: var(--muted-fg); }
+  .drow a, footer a { color: var(--primary); text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 4px; transition: text-decoration-color var(--motion-micro), color var(--motion-micro); }
+  .drow a { font-size: .78rem; }
+  .drow a:hover, footer a:hover { text-decoration-color: var(--primary); }
 
   footer { margin-top: 1.5rem; text-align: center; font-size: .82rem; color: var(--muted-fg); }
   a { color: inherit; }
@@ -127,22 +134,16 @@
 <body>
 <header>
   <span class="label">Agenda collaboratif · La Réunion</span>
-  <h1>Calendrier des événements</h1>
+  <h1>Agenda des événements</h1>
   <div class="filters">
     <select id="cat" aria-label="Filtrer par catégorie"></select>
     <select id="commune" aria-label="Filtrer par commune"></select>
-    <button id="today" class="today" hidden>aujourd'hui</button>
+    <button id="today" class="today" hidden>à venir</button>
   </div>
 </header>
 
 <main class="card">
-  <div class="nav">
-    <button id="prev" aria-label="Mois précédent">‹</button>
-    <h2 id="month"></h2>
-    <button id="next" aria-label="Mois suivant">›</button>
-  </div>
-  <div class="grid" id="weekdays"></div>
-  <div class="grid" id="days"></div>
+  <div class="schedule" id="schedule"></div>
 </main>
 
 <dialog id="detail" aria-labelledby="dtitle"></dialog>
@@ -180,18 +181,26 @@ function safeUrl(s) {
   catch { return null; }
 }
 
-// Une catégorie → un emoji + un couple de tokens « signal » (fond tinté + texte).
+// Une catégorie → un emoji + des tokens « signal » (fond tinté, texte, point coloré).
 const CATS = {
-  Culture: { emoji: "🎭", tint: "var(--Culture-bg)", fg: "var(--Culture-fg)" },
-  Sport: { emoji: "🏃", tint: "var(--Sport-bg)", fg: "var(--Sport-fg)" },
-  Religieux: { emoji: "🪔", tint: "var(--Religieux-bg)", fg: "var(--Religieux-fg)" },
-  "Jour férié": { emoji: "🎉", tint: "var(--Ferie-bg)", fg: "var(--Ferie-fg)" },
+  Culture: { emoji: "🎭", tint: "var(--Culture-bg)", fg: "var(--Culture-fg)", dot: "var(--Culture-dot)" },
+  Sport: { emoji: "🏃", tint: "var(--Sport-bg)", fg: "var(--Sport-fg)", dot: "var(--Sport-dot)" },
+  Religieux: { emoji: "🪔", tint: "var(--Religieux-bg)", fg: "var(--Religieux-fg)", dot: "var(--Religieux-dot)" },
+  "Jour férié": { emoji: "🎉", tint: "var(--Ferie-bg)", fg: "var(--Ferie-fg)", dot: "var(--Ferie-dot)" },
 };
-const catStyle = c => CATS[c] || { emoji: "📅", tint: "var(--muted)", fg: "var(--muted-fg)" };
+const catStyle = c => CATS[c] || { emoji: "📅", tint: "var(--muted)", fg: "var(--muted-fg)", dot: "var(--muted-fg)" };
 const communesLabel = c => c === "ALL" ? "Toute l'île" : c.split("|").join(", ");
 
+// Nombre de communes concernées ; "ALL" = toute l'île.
+function cityCount(c) { return c === "ALL" ? null : c.split("|").filter(Boolean).length; }
+function citiesLabel(c) {
+  const n = cityCount(c);
+  if (n === null) return "🏝️ Toute l'île";
+  return `📍 ${n} commune${n > 1 ? "s" : ""}`;
+}
+
 const MONTHS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
-const WEEKDAYS = ["lun.","mar.","mer.","jeu.","ven.","sam.","dim."];
+const WEEKDAYS = ["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
 const fmtDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
 const fmtFull = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
@@ -210,16 +219,15 @@ function fmtRange(e) {
 const now = new Date();
 const todayIso = iso(now);
 let all = [];
-let cursor = { y: now.getFullYear(), m: now.getMonth() };
-let fCat = "", fCommune = "";
+let fCat = "", fCommune = "", fUpcoming = false;
 
 function filtered() {
-  return all.filter(e =>
-    (!fCat || e.categorie === fCat) &&
-    (!fCommune || e.communes === "ALL" || e.communes.split("|").includes(fCommune)));
-}
-function eventsOn(key, list) {
-  return list.filter(e => key >= e.date_debut && key <= (e.date_fin || e.date_debut));
+  return all
+    .filter(e =>
+      (!fCat || e.categorie === fCat) &&
+      (!fCommune || e.communes === "ALL" || e.communes.split("|").includes(fCommune)) &&
+      (!fUpcoming || (e.date_fin || e.date_debut) >= todayIso))
+    .sort((a, b) => a.date_debut.localeCompare(b.date_debut) || a.nom.localeCompare(b.nom, "fr"));
 }
 
 fetch("reunion_events.csv")
@@ -232,7 +240,7 @@ fetch("reunion_events.csv")
     render();
   })
   .catch(() => {
-    document.querySelector("main").innerHTML = '<p class="noev" style="text-align:center;padding:2rem">Impossible de charger les données.</p>';
+    document.getElementById("schedule").innerHTML = '<p class="empty">Impossible de charger les données.</p>';
   });
 
 function initFilters() {
@@ -243,67 +251,73 @@ function initFilters() {
   document.getElementById("commune").innerHTML = '<option value="">Toute l\'île</option>' +
     communes.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
 
-  document.getElementById("weekdays").innerHTML = WEEKDAYS.map(w => `<div class="wd">${w}</div>`).join("");
-
   catSel.onchange = e => { fCat = e.target.value; render(); };
   document.getElementById("commune").onchange = e => { fCommune = e.target.value; render(); };
-  document.getElementById("prev").onclick = () => move(-1);
-  document.getElementById("next").onclick = () => move(1);
-  document.getElementById("today").onclick = () => { cursor = { y: now.getFullYear(), m: now.getMonth() }; render(); };
-}
-
-function move(delta) {
-  const d = new Date(cursor.y, cursor.m + delta, 1);
-  cursor = { y: d.getFullYear(), m: d.getMonth() };
-  render();
+  const todayBtn = document.getElementById("today");
+  todayBtn.hidden = false;
+  todayBtn.onclick = () => {
+    fUpcoming = !fUpcoming;
+    todayBtn.textContent = fUpcoming ? "tout voir" : "à venir";
+    todayBtn.setAttribute("aria-pressed", String(fUpcoming));
+    render();
+  };
 }
 
 function render() {
-  const { y, m } = cursor;
   const list = filtered();
-  document.getElementById("month").textContent = `${MONTHS[m]} ${y}`;
-  const isCurrent = y === now.getFullYear() && m === now.getMonth();
-  document.getElementById("today").hidden = isCurrent;
-
-  const offset = (new Date(y, m, 1).getDay() + 6) % 7; // lundi = 0
-  const daysInMonth = new Date(y, m + 1, 0).getDate();
-  const count = Math.ceil((offset + daysInMonth) / 7) * 7;
-  const days = document.getElementById("days");
-  days.style.gridTemplateRows = `repeat(${count / 7}, minmax(72px, 1fr))`;
-
-  let html = "";
-  for (let i = 0; i < count; i++) {
-    const d = new Date(y, m, 1 - offset + i);
-    const key = iso(d);
-    const inMonth = d.getMonth() === m;
-    if (!inMonth) { html += '<div class="day out"></div>'; continue; }
-    const evs = eventsOn(key, list);
-    const cls = ["day", key < todayIso ? "past" : "", key === todayIso ? "today" : ""].join(" ").trim();
-    const label = `${fmtFull.format(d)}, ${evs.length === 0 ? "aucun événement" : evs.length + " événement" + (evs.length > 1 ? "s" : "")}`;
-    const chips = evs.slice(0, 3).map(e => {
-      const s = catStyle(e.categorie);
-      return `<span class="chip" style="--tint:${s.tint};--fg:${s.fg}" title="${esc(e.nom)}">${esc(e.nom)}</span>`;
-    }).join("");
-    const more = evs.length > 3 ? `<span class="more">+${evs.length - 3}</span>` : "";
-    html += `<button class="${cls}" data-key="${key}" aria-label="${esc(label)}"` +
-      `${key === todayIso ? ' aria-current="date"' : ""}>` +
-      `<span class="daynum">${d.getDate()}</span><span class="chips">${chips}${more}</span></button>`;
+  const schedule = document.getElementById("schedule");
+  if (list.length === 0) {
+    schedule.innerHTML = '<p class="empty">Aucun événement ne correspond à ces filtres.</p>';
+    return;
   }
-  days.innerHTML = html;
-  days.querySelectorAll(".day:not(.out)").forEach(b => b.onclick = () => openDay(b.dataset.key));
+
+  // Regroupement par mois (les événements sont déjà triés chronologiquement).
+  const groups = [];
+  let current = null;
+  for (const e of list) {
+    const d = new Date(e.date_debut + "T00:00:00");
+    const gkey = `${d.getFullYear()}-${d.getMonth()}`;
+    if (!current || current.gkey !== gkey) {
+      current = { gkey, y: d.getFullYear(), m: d.getMonth(), items: [] };
+      groups.push(current);
+    }
+    current.items.push(e);
+  }
+
+  schedule.innerHTML = groups.map(g => {
+    const head = `<div class="month-head"><h2>${MONTHS[g.m]} ${g.y}</h2>` +
+      `<span class="count">${g.items.length} événement${g.items.length > 1 ? "s" : ""}</span></div>`;
+    const rows = g.items.map(e => {
+      const s = catStyle(e.categorie);
+      const d = new Date(e.date_debut + "T00:00:00");
+      const key = iso(d);
+      const cls = ["row", key < todayIso ? "past" : "", key === todayIso ? "today" : ""].join(" ").trim();
+      const label = `${e.nom}, ${fmtRange(e)}, ${e.categorie}, ${citiesLabel(e.communes).replace(/^[^\w]+ /, "")}`;
+      return `<button class="${cls}" data-key="${key}" aria-label="${esc(label)}">` +
+        `<span class="when"><span class="d">${d.getDate()}</span><span class="wd">${WEEKDAYS[d.getDay()]}</span></span>` +
+        `<span class="dot" style="--dot:${s.dot}" aria-hidden="true"></span>` +
+        `<span class="body"><h3>${esc(e.nom)}</h3>` +
+        `<span class="meta"><span class="cat" style="--fg:${s.fg}">${s.emoji} ${esc(e.categorie)}</span>` +
+        `<span class="sep">·</span><span>${citiesLabel(e.communes)}</span></span></span>` +
+        `</button>`;
+    }).join("");
+    return head + rows;
+  }).join("");
+
+  schedule.querySelectorAll(".row").forEach(b => b.onclick = () => openDay(b.dataset.key));
 }
 
 function openDay(key) {
-  const evs = eventsOn(key, filtered());
+  const evs = filtered().filter(e => key >= e.date_debut && key <= (e.date_fin || e.date_debut));
+  if (evs.length === 0) return;
   const title = fmtFull.format(new Date(key + "T00:00:00"));
-  const body = evs.length === 0
-    ? '<p class="noev">Aucun événement ce jour.</p>'
-    : '<ul class="evlist">' + evs.map(e => {
+  const body = '<ul class="devlist">' + evs.map(e => {
         const s = catStyle(e.categorie);
         const u = safeUrl(e.lien);
-        return `<li class="ev"><div class="evtop"><h4>${esc(e.nom)}</h4>` +
-          `<span class="badge" style="--tint:${s.tint};--fg:${s.fg}">${esc(e.categorie)}</span></div>` +
-          `<p class="loc">📍 ${esc(communesLabel(e.communes))}</p>` +
+        return `<li class="drow" style="display:block"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem">` +
+          `<h4 style="margin:0;font-size:.95rem;font-weight:600">${esc(e.nom)}</h4>` +
+          `<span class="badge" style="--tint:${s.tint};--fg:${s.fg}">${s.emoji} ${esc(e.categorie)}</span></div>` +
+          `<p class="loc">📍 ${esc(communesLabel(e.communes))} <span style="color:var(--muted-fg)">(${citiesLabel(e.communes).replace(/^[^\w]+ /, "")})</span></p>` +
           `<p class="dates">${fmtRange(e)}</p>` +
           (u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">site officiel ↗</a>` : "") +
           `</li>`;
@@ -311,7 +325,7 @@ function openDay(key) {
   const dlg = document.getElementById("detail");
   dlg.innerHTML =
     `<div class="dhead"><div><span class="label">${evs.length} événement${evs.length > 1 ? "s" : ""}</span>` +
-    `<h3 id="dtitle">${esc(title)}</h3></div>` +
+    `<h3 id="dtitle" style="text-transform:capitalize">${esc(title)}</h3></div>` +
     `<button class="close" aria-label="Fermer">✕</button></div>${body}`;
   dlg.querySelector(".close").onclick = () => dlg.close();
   dlg.showModal();
