@@ -191,14 +191,6 @@ const CATS = {
 const catStyle = c => CATS[c] || { emoji: "📅", tint: "var(--muted)", fg: "var(--muted-fg)", dot: "var(--muted-fg)" };
 const communesLabel = c => c === "ALL" ? "Toute l'île" : c.split("|").join(", ");
 
-// Nombre de communes concernées ; "ALL" = toute l'île.
-function cityCount(c) { return c === "ALL" ? null : c.split("|").filter(Boolean).length; }
-function citiesLabel(c) {
-  const n = cityCount(c);
-  if (n === null) return "🏝️ Toute l'île";
-  return `📍 ${n} commune${n > 1 ? "s" : ""}`;
-}
-
 const MONTHS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 const WEEKDAYS = ["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
 const fmtDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
@@ -287,20 +279,20 @@ function render() {
   }
 
   schedule.innerHTML = groups.map(g => {
-    const head = `<div class="month-head"><h2>${MONTHS[g.m]} ${g.y}</h2>` +
-      `<span class="count">${g.items.length} événement${g.items.length > 1 ? "s" : ""}</span></div>`;
+    const head = `<div class="month-head"><h2>${MONTHS[g.m]} ${g.y}</h2></div>`;
     const rows = g.items.map(e => {
       const s = catStyle(e.categorie);
       const d = new Date(e.date_debut + "T00:00:00");
       const key = iso(d);
       const cls = ["row", key < todayIso ? "past" : "", key === todayIso ? "today" : ""].join(" ").trim();
-      const label = `${e.nom}, ${fmtRange(e)}, ${e.categorie}, ${citiesLabel(e.communes).replace(/^[^\w]+ /, "")}`;
+      const loc = e.communes === "ALL" ? "🏝️ Toute l'île" : "📍 " + communesLabel(e.communes);
+      const label = `${e.nom}, ${fmtRange(e)}, ${e.categorie}, ${communesLabel(e.communes)}`;
       return `<button class="${cls}" data-key="${key}" aria-label="${esc(label)}">` +
-        `<span class="when"><span class="d">${d.getDate()}</span><span class="wd">${WEEKDAYS[d.getDay()]}</span></span>` +
+        `<span class="when"><span class="wd">${WEEKDAYS[d.getDay()]}</span><span class="d">${d.getDate()}</span></span>` +
         `<span class="dot" style="--dot:${s.dot}" aria-hidden="true"></span>` +
         `<span class="body"><h3>${esc(e.nom)}</h3>` +
         `<span class="meta"><span class="cat" style="--fg:${s.fg}">${s.emoji} ${esc(e.categorie)}</span>` +
-        `<span class="sep">·</span><span>${citiesLabel(e.communes)}</span></span></span>` +
+        `<span class="sep">·</span><span class="loc-names">${esc(loc)}</span></span></span>` +
         `</button>`;
     }).join("");
     return head + rows;
@@ -319,7 +311,7 @@ function openDay(key) {
         return `<li class="drow" style="display:block"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem">` +
           `<h4 style="margin:0;font-size:.95rem;font-weight:600">${esc(e.nom)}</h4>` +
           `<span class="badge" style="--tint:${s.tint};--fg:${s.fg}">${s.emoji} ${esc(e.categorie)}</span></div>` +
-          `<p class="loc">📍 ${esc(communesLabel(e.communes))} <span style="color:var(--muted-fg)">(${citiesLabel(e.communes).replace(/^[^\w]+ /, "")})</span></p>` +
+          `<p class="loc">${e.communes === "ALL" ? "🏝️" : "📍"} ${esc(communesLabel(e.communes))}</p>` +
           `<p class="dates">${fmtRange(e)}</p>` +
           (u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">site officiel ↗</a>` : "") +
           `</li>`;
