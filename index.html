@@ -79,7 +79,7 @@
   .month-head .count { font-size: 11px; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
 
   .row {
-    display: grid; grid-template-columns: 3.25rem auto 1fr; align-items: center; gap: .75rem;
+    display: grid; grid-template-columns: 6.5rem auto 1fr; align-items: center; gap: .75rem;
     width: 100%; text-align: left; border: 0; border-radius: var(--r-lg); background: none; color: inherit;
     padding: .6rem .75rem; cursor: pointer;
     transition: background var(--motion-micro) var(--ease-standard), transform var(--motion-micro) var(--ease-standard);
@@ -90,9 +90,11 @@
   .row.past { opacity: .5; filter: saturate(.5); }
   .row.today { background: color-mix(in srgb, var(--primary) 7%, transparent); }
 
-  .when { text-align: center; line-height: 1.05; }
+  .when { display: flex; align-items: center; justify-content: center; gap: .3rem; line-height: 1.05; }
+  .when .date { display: flex; flex-direction: column; align-items: center; }
   .when .d { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }
   .when .wd { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-fg); }
+  .when .arrow { font-size: .8rem; color: var(--muted-fg); }
   .today .when .d { color: var(--primary); }
 
   /* Point coloré lié à la catégorie */
@@ -287,8 +289,13 @@ function render() {
       const cls = ["row", key < todayIso ? "past" : "", key === todayIso ? "today" : ""].join(" ").trim();
       const loc = e.communes === "ALL" ? "🏝️ Toute l'île" : "📍 " + communesLabel(e.communes);
       const label = `${e.nom}, ${fmtRange(e)}, ${e.categorie}, ${communesLabel(e.communes)}`;
+      const dateBlock = dd => `<span class="date"><span class="wd">${WEEKDAYS[dd.getDay()]}</span><span class="d">${dd.getDate()}</span></span>`;
+      const df = e.date_fin && e.date_fin !== e.date_debut ? new Date(e.date_fin + "T00:00:00") : null;
+      const when = df && !isNaN(df)
+        ? `${dateBlock(d)}<span class="arrow" aria-hidden="true">→</span>${dateBlock(df)}`
+        : dateBlock(d);
       return `<button class="${cls}" data-key="${key}" aria-label="${esc(label)}">` +
-        `<span class="when"><span class="wd">${WEEKDAYS[d.getDay()]}</span><span class="d">${d.getDate()}</span></span>` +
+        `<span class="when">${when}</span>` +
         `<span class="dot" style="--dot:${s.dot}" aria-hidden="true"></span>` +
         `<span class="body"><h3>${esc(e.nom)}</h3>` +
         `<span class="meta"><span class="cat" style="--fg:${s.fg}">${s.emoji} ${esc(e.categorie)}</span>` +
