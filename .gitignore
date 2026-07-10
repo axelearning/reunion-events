@@ -1,3 +1,4 @@
 .playwright-cli/
 tmp/
 node_modules/
+events.ics
