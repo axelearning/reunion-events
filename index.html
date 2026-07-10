@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Agenda ouvert et collaboratif des événements de l'île de La Réunion.">
+<title>Événements de La Réunion</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌋</text></svg>">
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 16px/1.5 system-ui, sans-serif; margin: 0; padding: 1.5rem; max-width: 1100px; margin-inline: auto; }
+  header h1 { margin: 0 0 .25rem; }
+  p.sub { margin: 0 0 1.25rem; opacity: .7; }
+  #q { width: 100%; padding: .6rem .8rem; font-size: 1rem; border: 1px solid #8884; border-radius: .5rem; box-sizing: border-box; margin-bottom: .75rem; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid #8883; vertical-align: top; }
+  th { cursor: pointer; user-select: none; white-space: nowrap; position: sticky; top: 0; background: Canvas; }
+  th.asc::after { content: " ▲"; }
+  th.desc::after { content: " ▼"; }
+  tbody tr:hover { background: #8881; }
+  td.dates { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  a { color: inherit; }
+  #count { opacity: .6; font-size: .9rem; margin-bottom: .5rem; }
+  .empty { padding: 2rem; text-align: center; opacity: .6; }
+  footer { margin-top: 2rem; font-size: .85rem; opacity: .6; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🌋 Événements de La Réunion</h1>
+  <p class="sub">Agenda ouvert et collaboratif —
+    <a href="https://github.com/axelearning/reunion-events">proposez un événement via une pull request</a>.</p>
+</header>
+
+<main>
+  <input id="q" type="search" placeholder="Rechercher un événement, une commune, une catégorie…"
+         aria-label="Rechercher un événement">
+  <div id="count" role="status"></div>
+  <table>
+    <caption class="empty" hidden></caption>
+    <thead></thead><tbody></tbody>
+  </table>
+</main>
+
+<footer>Données sous licence ouverte, maintenues par la communauté.
+  <a href="https://github.com/axelearning/reunion-events/blob/main/reunion_events.csv">Voir le CSV brut</a>.</footer>
+
+<script>
+"use strict";
+
+// Parseur CSV minimal (RFC 4180) : champs entre guillemets, virgules internes, "" échappés.
+function parseCSV(text) {
+  const rows = [[]];
+  let field = "", inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQuotes = false; }
+      else field += c;
+    } else if (c === '"') inQuotes = true;
+    else if (c === ",") { rows[rows.length - 1].push(field); field = ""; }
+    else if (c === "\n") { rows[rows.length - 1].push(field); field = ""; rows.push([]); }
+    else if (c !== "\r") field += c;
+  }
+  rows[rows.length - 1].push(field);
+  return rows.filter(r => r.length > 1 || r[0] !== "");
+}
+
+// Le CSV est modifiable par n'importe qui via PR : tout contenu est traité comme hostile.
+function esc(s) {
+  return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function safeUrl(s) {
+  try { return ["http:", "https:"].includes(new URL(s).protocol) ? s : null; }
+  catch { return null; }
+}
+
+const fmtDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+function fmtRange(debut, fin) {
+  const d = new Date(debut + "T00:00:00");
+  if (isNaN(d)) return esc(debut);
+  const f = fin ? new Date(fin + "T00:00:00") : null;
+  return f && !isNaN(f) && fin !== debut
+    ? `${fmtDate.format(d)} → ${fmtDate.format(f)}`
+    : fmtDate.format(d);
+}
+
+const COLS = [
+  { label: "Dates", sort: r => r.date_debut, html: r => fmtRange(r.date_debut, r.date_fin), cls: "dates" },
+  { label: "Nom", sort: r => r.nom, html: r => `<strong>${esc(r.nom)}</strong>` },
+  { label: "Communes", sort: r => r.communes, html: r =>
+      esc(r.communes === "ALL" ? "Toute l'île" : r.communes.split("|").join(", ")) },
+  { label: "Catégorie", sort: r => r.categorie, html: r => esc(r.categorie) },
+  { label: "Lien", sort: r => r.lien, html: r => {
+      const u = safeUrl(r.lien);
+      return u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">site ↗</a>` : "";
+    } },
+];
+
+let data = [], sortCol = 0, sortDir = 1;
+
+fetch("reunion_events.csv")
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+  .then(text => {
+    const rows = parseCSV(text.trim());
+    const headers = rows[0];
+    data = rows.slice(1).map(r => Object.fromEntries(headers.map((h, i) => [h, (r[i] ?? "").trim()])));
+    renderHead();
+    render();
+  })
+  .catch(() => {
+    document.querySelector("tbody").innerHTML =
+      '<tr><td class="empty" colspan="5">Impossible de charger les données.</td></tr>';
+  });
+
+function renderHead() {
+  document.querySelector("thead").innerHTML =
+    "<tr>" + COLS.map((c, i) => `<th data-i="${i}" scope="col">${c.label}</th>`).join("") + "</tr>";
+  document.querySelectorAll("th").forEach(th => th.onclick = () => {
+    const i = +th.dataset.i;
+    sortDir = sortCol === i ? -sortDir : 1;
+    sortCol = i;
+    render();
+  });
+}
+
+function render() {
+  const q = document.getElementById("q").value.toLowerCase();
+  let rows = data.filter(r => Object.values(r).some(v => v.toLowerCase().includes(q)));
+  const key = COLS[sortCol].sort;
+  rows = [...rows].sort((a, b) => key(a).localeCompare(key(b), "fr", { numeric: true }) * sortDir);
+  document.querySelectorAll("th").forEach((th, i) =>
+    th.className = i === sortCol ? (sortDir === 1 ? "asc" : "desc") : "");
+  document.querySelector("tbody").innerHTML = rows.length
+    ? rows.map(r => "<tr>" + COLS.map(c =>
+        `<td${c.cls ? ` class="${c.cls}"` : ""}>${c.html(r)}</td>`).join("") + "</tr>").join("")
+    : '<tr><td class="empty" colspan="5">Aucun résultat.</td></tr>';
+  document.getElementById("count").textContent =
+    `${rows.length} événement${rows.length > 1 ? "s" : ""}`;
+}
+
+document.getElementById("q").addEventListener("input", render);
+</script>
+</body>
+</html>
