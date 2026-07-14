@@ -58,14 +58,14 @@
   .label { font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
   header h1 { margin: .15rem 0 0; font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
   .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
-  select, .today {
+  select, #today {
     font: inherit; font-size: .875rem; padding: .375rem .625rem; border: 1px solid var(--muted);
     border-radius: var(--r-md); background: var(--card); color: inherit; cursor: pointer;
     transition: background var(--motion-micro) var(--ease-standard), transform var(--motion-micro) var(--ease-standard);
   }
-  .today { margin-left: auto; color: var(--muted-fg); background: none; }
-  select:hover, .today:hover { background: var(--muted); }
-  select:active, .today:active, .nav button:active { transform: scale(.98); }
+  #today { margin-left: auto; color: var(--muted-fg); background: none; }
+  select:hover, #today:hover { background: var(--muted); }
+  select:active, #today:active, .nav button:active { transform: scale(.98); }
 
   .card { margin-top: 1rem; flex: 1; display: flex; flex-direction: column; border: 1px solid var(--muted); border-radius: var(--r-xl); background: var(--card); padding: 1rem; }
   .nav { display: flex; align-items: center; justify-content: center; gap: .25rem; margin-bottom: .75rem; }
@@ -131,7 +131,7 @@
   <div class="filters">
     <select id="cat" aria-label="Filtrer par catégorie"></select>
     <select id="commune" aria-label="Filtrer par commune"></select>
-    <button id="today" class="today" hidden>aujourd'hui</button>
+    <button id="today" hidden>aujourd'hui</button>
   </div>
 </header>
 
