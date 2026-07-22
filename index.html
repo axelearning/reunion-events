@@ -26,11 +26,11 @@
     --primary-strong: #3b5d92; /* primary ink on tinted backgrounds (AA at 11px) */
     --primary-fg: #ffffff;
 
-    /* — "Signal" states → one category, one color (bg + text + dot) — */
-    --Culture-bg: #e6eef8;           --Culture-fg: #2c5490;   --Culture-dot: #4a6fa5;
-    --Sport-bg: #e8f3ec;             --Sport-fg: #276b44;     --Sport-dot: #3f9d63;
-    --Religieux-bg: #f6efe2;         --Religieux-fg: #7a5d20; --Religieux-dot: #b3872f;
-    --Ferie-bg: rgba(220,74,74,.10); --Ferie-fg: #991b1b;     --Ferie-dot: #dc4a4a;
+    /* — "Signal" states → one category, one color (bg + text) — */
+    --Culture-bg: #e6eef8;           --Culture-fg: #2c5490;
+    --Sport-bg: #e8f3ec;             --Sport-fg: #276b44;
+    --Religieux-bg: #f6efe2;         --Religieux-fg: #7a5d20;
+    --Ferie-bg: rgba(220,74,74,.10); --Ferie-fg: #991b1b;
 
     /* — Radius scale — */
     --r-badge: 3px; --r-sm: 5px; --r-md: 6px; --r-lg: 8px; --r-xl: 12px; --r-2xl: 16px;
@@ -45,35 +45,38 @@
     --ease-expo: cubic-bezier(.16,1,.3,1);
     --ease-standard: cubic-bezier(.2,0,0,1);
 
-    /* Geist is the prototype's typeface; system-ui as fallback (font not bundled here). */
-    --font-sans: "Geist Variable", -apple-system, system-ui, sans-serif;
+    /* System stack: no bundled font, zero dependency. */
+    --font-sans: system-ui, -apple-system, sans-serif;
   }
   * { box-sizing: border-box; }
   body {
-    font: 16px/1.5 var(--font-sans); margin: 0 auto; padding: 2rem 1.25rem; max-width: 48rem;
+    font: 16px/1.5 var(--font-sans); margin: 0 auto; padding: 2rem 1.25rem; max-width: 64rem;
     min-height: 100vh; display: flex; flex-direction: column; background: var(--background); color: var(--foreground);
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   }
-  body.cal-view { max-width: 64rem; } /* the month grid breathes wider than the list */
 
   /* section-label (mono role: tabular figures, tight uppercase) */
-  .label { font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
+  .label { font-size: .625rem; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
   header h1 { margin: .15rem 0 0; font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
   .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
-  select, #today, #upcoming {
-    font: inherit; font-size: .875rem; padding: .375rem .625rem; border: 1px solid var(--muted);
+  select, #today, #retry, #reset {
+    font: inherit; font-size: .875rem; padding: .375rem .625rem; border: 1px solid var(--border);
     border-radius: var(--r-md); background: var(--card); color: inherit; cursor: pointer;
     transition: background var(--motion-micro) var(--ease-standard), transform var(--motion-micro) var(--ease-standard);
   }
-  #today, #upcoming { color: var(--muted-fg); background: none; }
-  select:hover, #today:hover, #upcoming:hover { background: var(--muted); }
-  select:active, #today:active, #upcoming:active { transform: scale(.98); }
+  #retry, #reset { color: var(--muted-fg); background: none; }
+  select:hover, #retry:hover, #reset:hover { background: var(--muted); color: var(--text-secondary); }
+  select:active, #today:active, #retry:active, #reset:active { transform: scale(.98); }
+  /* Quiet text action: reads as "jump", not as another filter control. */
+  #today { border: 0; background: none; color: var(--primary-strong); }
+  #today:hover { background: color-mix(in srgb, var(--primary) 8%, var(--card)); }
   /* Active filter: the state is visible without reopening the menu. */
   select.active { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--card)); color: var(--primary-strong); }
+  .empty #retry, .empty #reset { margin-top: .6rem; }
   :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
   /* View switcher: segmented control, same "active filter" vocabulary as select.active */
-  .views { margin-left: auto; display: flex; padding: 2px; gap: 2px; border: 1px solid var(--muted); border-radius: var(--r-md); background: var(--card); }
+  .views { margin-left: auto; display: flex; padding: 2px; gap: 2px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card); }
   .views button {
     display: inline-flex; align-items: center; gap: .35rem;
     font: inherit; font-size: .8rem; padding: .25rem .6rem; border: 0; border-radius: calc(var(--r-md) - 2px);
@@ -81,47 +84,70 @@
     transition: background var(--motion-micro) var(--ease-standard), color var(--motion-micro) var(--ease-standard);
   }
   .views svg { flex-shrink: 0; }
-  .views button:hover { background: var(--muted); }
-  .views button[aria-pressed="true"] { background: color-mix(in srgb, var(--primary) 8%, var(--card)); color: var(--primary-strong); font-weight: 600; }
+  .views button:hover { background: var(--muted); color: var(--text-secondary); }
+  .views button[aria-checked="true"] { background: color-mix(in srgb, var(--primary) 8%, var(--card)); color: var(--primary-strong); font-weight: 600; }
 
-  .card { margin-top: 1rem; flex: 1; display: flex; flex-direction: column; border: 1px solid var(--muted); border-radius: var(--r-xl); background: var(--card); padding: .5rem; }
+  /* List view: the page is viewport-high like the calendar; the list scrolls in its pane. */
+  body:not(.cal-view) { height: 100vh; height: 100dvh; }
+  main { margin-top: 1rem; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  /* The calendar lives in one card; the list is one card per month (below). */
+  body.cal-view main { border: 1px solid var(--muted); border-radius: var(--r-xl); background: var(--card); padding: .5rem; }
 
-  /* — Agenda (schedule) — */
-  .schedule:not([hidden]) { display: flex; flex-direction: column; }
+  /* — Agenda (schedule): centered column, one card per month — */
+  .schedule { width: 100%; max-width: 50rem; margin-inline: auto; }
+  .schedule:not([hidden]) { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
+  .schedule section { border: 1px solid var(--muted); border-radius: var(--r-xl); background: var(--card); }
+  .schedule section + section { margin-top: 1rem; }
+  .schedule > .empty { border: 1px solid var(--muted); border-radius: var(--r-xl); background: var(--card); }
   .month-head {
     position: sticky; top: 0; z-index: 1; background: var(--card);
-    padding: .85rem .75rem .35rem; display: flex; align-items: baseline; gap: .5rem;
+    border-bottom: 1px solid var(--muted); border-radius: var(--r-xl) var(--r-xl) 0 0;
+    padding: .7rem 1rem .55rem; display: flex; align-items: baseline; gap: .5rem;
   }
   .month-head h2 { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: -.01em; text-transform: capitalize; }
-  .month-head .count { font-size: 11px; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
+  .month-head .count { margin-left: auto; font-size: .6875rem; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
+  .rows { list-style: none; margin: 0; padding: .25rem .25rem .35rem; }
+  .rows li + li { margin-top: .3rem; }
+
+  /* Past events fold: a divider-with-label at the top of the list, where the hidden
+     content actually is — not a header button the reader never connects to it. */
+  .past-toggle {
+    align-self: stretch; display: flex; align-items: center; gap: .75rem;
+    margin-bottom: .75rem; padding: .25rem 0; border: 0; background: none; cursor: pointer;
+    font: inherit; font-size: .78rem; color: var(--muted-fg);
+    transition: color var(--motion-micro) var(--ease-standard);
+  }
+  .past-toggle::before, .past-toggle::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
+  .past-toggle:hover { color: var(--primary-strong); }
 
   .row {
-    display: grid; grid-template-columns: 6.5rem auto 1fr; align-items: center; gap: .75rem;
+    display: grid; grid-template-columns: 3.75rem 1fr auto; align-items: center; gap: .75rem;
     width: 100%; text-align: left; border: 0; border-radius: var(--r-lg); background: none; color: inherit;
     padding: .6rem .75rem; cursor: pointer;
+    scroll-margin-top: 3.25rem; /* keep focused/anchored rows clear of the sticky month header */
     transition: background var(--motion-micro) var(--ease-standard), transform var(--motion-micro) var(--ease-standard);
   }
-  .row + .row { border-top: 1px solid var(--muted); border-radius: 0; }
   .row:hover { background: var(--cell); }
   .row:active { transform: scale(.995); }
-  .row.past { opacity: .5; filter: saturate(.5); }
+  /* Past: dimmed via an AA-safe text color (≥4.5:1), never opacity;
+     badges get the calendar's luminance-preserving desaturation. */
+  .row.past { color: var(--muted-fg); }
+  .row.past .badge { filter: saturate(.35); }
   .row.today { background: color-mix(in srgb, var(--primary) 7%, transparent); }
 
-  .when { display: flex; align-items: center; justify-content: center; gap: .3rem; line-height: 1.05; }
-  .when .date { display: flex; flex-direction: column; align-items: center; }
+  /* One column, always aligned: weekday on top, "25" or the compact range "25–26" below. */
+  .when { display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
   .when .d { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .when .wd { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-fg); }
-  .when .arrow { font-size: .8rem; color: var(--muted-fg); }
+  .when .wd { font-size: .625rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-fg); }
   .today .when .d { color: var(--primary); }
 
-  /* Category-colored dot */
-  .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--dot); flex-shrink: 0; box-shadow: 0 0 0 3px color-mix(in srgb, var(--dot) 15%, transparent); }
-
   .body { min-width: 0; }
-  .row h3 { margin: 0; font-size: .95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin: 0; font-size: .95rem; font-weight: 600; overflow: hidden; overflow-wrap: break-word; }
   .meta { margin: .15rem 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .6rem; font-size: .78rem; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
-  .meta .cat { color: var(--fg); font-weight: 500; }
   .meta .sep { color: var(--border-strong); }
+  /* In-row badge: trailing tag at the right edge, slimmer than the dialog one. */
+  .row .badge { font-size: .5625rem; padding: 1px 5px; border-radius: var(--r-badge); }
+  .loc-names { display: inline-flex; align-items: center; gap: .25rem; }
 
   .empty { text-align: center; color: var(--muted-fg); font-size: .9rem; padding: 3rem 1rem; }
 
@@ -135,7 +161,7 @@
 
   .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
   #days { flex: 1; }
-  .grid .wd { padding: .375rem 0; text-align: center; font: 600 11px/1 var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-fg); }
+  .grid .wd { padding: .375rem 0; text-align: center; font: 600 .6875rem/1 var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-fg); }
   .day {
     display: flex; flex-direction: column; padding: .375rem; border: 0; border-radius: var(--r-sm);
     background: var(--cell); text-align: left; cursor: pointer; color: inherit; overflow: hidden;
@@ -143,20 +169,21 @@
   }
   .day:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
   .day.out { visibility: hidden; pointer-events: none; }
-  .day.past { opacity: .4; filter: saturate(.3); }
-  .daynum { align-self: flex-start; font-size: 11px; font-weight: 500; color: var(--muted-fg); }
+  /* Past: luminance-preserving desaturation keeps chip/text contrast AA. */
+  .day.past { filter: saturate(.35); }
+  .daynum { align-self: flex-start; font-size: .6875rem; font-weight: 500; color: var(--muted-fg); }
   /* Today: filled pill on the day number (Apple Calendar style), cell stays like the others. */
   .day.today .daynum { background: var(--primary); color: var(--primary-fg); font-weight: 600; border-radius: 999px; min-width: 18px; text-align: center; padding: 2px 5px; margin: -2px 0 0 -3px; }
   .chips { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
   .chip {
     display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    padding: 1px 4px; border-radius: var(--r-sm); font-size: 10px; line-height: 1.35;
+    padding: 1px 4px; border-radius: var(--r-sm); font-size: .625rem; line-height: 1.35;
     background: var(--tint); color: var(--fg);
   }
-  .more { padding: 0 4px; font-size: 10px; color: var(--muted-fg); }
+  .more { padding: 0 4px; font-size: .625rem; color: var(--muted-fg); }
 
   dialog {
-    width: 100%; max-width: 28rem; border: 1px solid var(--border-strong); border-radius: var(--r-2xl);
+    width: 100%; max-width: 28rem; border: 0; border-radius: var(--r-2xl);
     background: var(--popover); color: var(--foreground); padding: 1.5rem; box-shadow: var(--shadow-2xl);
   }
   dialog::backdrop { background: #00000080; }
@@ -169,15 +196,32 @@
   .close:hover { color: inherit; }
   .devlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .35rem; }
   .devlist li { display: flex; align-items: center; gap: .5rem; font-size: .9rem; }
-  .badge { flex-shrink: 0; padding: 2px 6px; border-radius: var(--r-badge); font-size: 11px; background: var(--tint); color: var(--fg); white-space: nowrap; }
-  .drow .loc { margin: .6rem 0 0; font-size: .875rem; color: var(--text-secondary); }
-  .drow .dates { margin: .15rem 0 0; font: .78rem/1.4 var(--font-sans); font-variant-numeric: tabular-nums; color: var(--muted-fg); }
+  .badge {
+    flex-shrink: 0; padding: 2px 7px; border-radius: var(--r-sm); white-space: nowrap;
+    font-size: .625rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--tint); color: var(--fg);
+  }
+  .facts { list-style: none; margin: .6rem 0 0; padding: 0; display: flex; flex-direction: column; gap: .45rem; }
+  .facts li { display: flex; align-items: center; gap: .5rem; font-size: .875rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .facts svg { flex-shrink: 0; color: var(--muted-fg); }
   .drow a, footer a { color: var(--primary); text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 4px; transition: text-decoration-color var(--motion-micro), color var(--motion-micro); }
-  .drow a { font-size: .78rem; }
   .drow a:hover, footer a:hover { text-decoration-color: var(--primary); }
 
   footer { margin-top: 1.5rem; text-align: center; font-size: .82rem; color: var(--muted-fg); }
   a { color: inherit; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+  /* Narrow screens: tighter row gutters. */
+  @media (max-width: 480px) {
+    .row { gap: .6rem; padding-inline: .5rem; }
+  }
+  /* Touch: 44px targets on the primary controls (fine pointers keep the compact density). */
+  @media (pointer: coarse) {
+    select, #today, #retry, #reset { min-height: 44px; }
+    .views button, .past-toggle { min-height: 2.75rem; }
+    .close { padding: .6rem; margin: -.35rem -.35rem 0 0; }
+  }
 </style>
 </head>
 <body>
@@ -187,23 +231,22 @@
   <div class="filters">
     <select id="cat" aria-label="Filtrer par catégorie"></select>
     <select id="commune" aria-label="Filtrer par commune"></select>
-    <div class="views" role="group" aria-label="Affichage">
-      <button id="v-list" aria-pressed="true">
+    <button id="today" hidden>aujourd'hui</button>
+    <div class="views" role="radiogroup" aria-label="Affichage">
+      <button id="v-list" role="radio" aria-checked="true">
         <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5.5 4h8M5.5 8h8M5.5 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="2.25" cy="4" r="1" fill="currentColor"/><circle cx="2.25" cy="8" r="1" fill="currentColor"/><circle cx="2.25" cy="12" r="1" fill="currentColor"/></svg>
         Liste
       </button>
-      <button id="v-cal" aria-pressed="false">
+      <button id="v-cal" role="radio" aria-checked="false" tabindex="-1">
         <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg>
         Calendrier
       </button>
     </div>
-    <button id="upcoming" hidden>tout voir</button>
-    <button id="today" hidden>aujourd'hui</button>
   </div>
 </header>
 
-<main class="card">
-  <div class="schedule" id="schedule"></div>
+<main>
+  <div class="schedule" id="schedule"><p class="empty">Chargement…</p></div>
   <div id="calendar" hidden>
     <div class="nav">
       <button id="prev" aria-label="Mois précédent">‹</button>
@@ -216,6 +259,8 @@
 </main>
 
 <dialog id="detail" aria-labelledby="dtitle"></dialog>
+
+<p id="status" class="sr-only" role="status"></p>
 
 <footer>
   <a href="https://github.com/axelearning/reunion-events">proposez un événement sur GitHub ↗</a></footer>
@@ -250,36 +295,49 @@ function safeUrl(s) {
   catch { return null; }
 }
 
-// One category → an emoji + "signal" tokens (tinted background, text, colored dot).
+// One category → "signal" tokens (tinted background, text).
 const CATS = {
-  Culture: { emoji: "🎭", tint: "var(--Culture-bg)", fg: "var(--Culture-fg)", dot: "var(--Culture-dot)" },
-  Sport: { emoji: "🏃", tint: "var(--Sport-bg)", fg: "var(--Sport-fg)", dot: "var(--Sport-dot)" },
-  Religieux: { emoji: "🪔", tint: "var(--Religieux-bg)", fg: "var(--Religieux-fg)", dot: "var(--Religieux-dot)" },
-  "Jour férié": { emoji: "🎉", tint: "var(--Ferie-bg)", fg: "var(--Ferie-fg)", dot: "var(--Ferie-dot)" },
+  Culture: { tint: "var(--Culture-bg)", fg: "var(--Culture-fg)" },
+  Sport: { tint: "var(--Sport-bg)", fg: "var(--Sport-fg)" },
+  Religieux: { tint: "var(--Religieux-bg)", fg: "var(--Religieux-fg)" },
+  "Jour férié": { tint: "var(--Ferie-bg)", fg: "var(--Ferie-fg)" },
 };
-const catStyle = c => CATS[c] || { emoji: "📅", tint: "var(--muted)", fg: "var(--muted-fg)", dot: "var(--muted-fg)" };
+const catStyle = c => CATS[c] || { tint: "var(--muted)", fg: "var(--muted-fg)" };
+// Outline pin for locations, same stroke vocabulary as the view-switcher icons.
+const PIN = '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M13 6.7C13 10 8 14 8 14S3 10 3 6.7a5 5 0 0 1 10 0Z"/><circle cx="8" cy="6.7" r="1.8"/></svg>';
+const CAL = '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg>';
 const communesLabel = c => c === "ALL" ? "Toute l'île" : c.split("|").join(", ");
 
 const MONTHS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 const WEEKDAYS = ["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
-const fmtDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
 const fmtFull = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+const fmtLong = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+const fmtShort = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" });
+const fmtDayMonth = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" });
 
 function iso(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-function fmtRange(e) {
+// Range collapsed like the French usage: "du 7 au 9 août 2026", "du 22 mai au
+// 7 juin 2026" — or with dash=true the compact "7 – 9 août 2026" for display next
+// to an icon. The du/au form is kept for screen readers ("–" isn't spoken).
+// Callers escape at interpolation.
+function fmtRange(e, dash) {
   const d = new Date(e.date_debut + "T00:00:00");
-  if (isNaN(d)) return esc(e.date_debut);
-  const f = e.date_fin ? new Date(e.date_fin + "T00:00:00") : null;
-  return f && !isNaN(f) && e.date_fin !== e.date_debut
-    ? `${fmtDate.format(d)} → ${fmtDate.format(f)}`
-    : fmtDate.format(d);
+  if (isNaN(d)) return e.date_debut;
+  const f = e.date_fin && e.date_fin !== e.date_debut ? new Date(e.date_fin + "T00:00:00") : null;
+  if (!f || isNaN(f)) return fmtFull.format(d);
+  const start = d.getFullYear() !== f.getFullYear() ? fmtLong.format(d)
+    : d.getMonth() !== f.getMonth() ? fmtDayMonth.format(d)
+    : String(d.getDate());
+  return dash ? `${start} – ${fmtLong.format(f)}` : `du ${start} au ${fmtLong.format(f)}`;
 }
 
 const now = new Date();
 const todayIso = iso(now);
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 let all = [];
+let shown = []; // events currently rendered in the list, indexed by data-i
 let fCat = "", fCommune = "", fUpcoming = true;
 let view = localStorage.getItem("view") === "cal" ? "cal" : "list";
 let cursor = { y: now.getFullYear(), m: now.getMonth() };
@@ -290,28 +348,30 @@ function baseFiltered() {
     (!fCat || e.categorie === fCat) &&
     (!fCommune || e.communes === "ALL" || e.communes.split("|").includes(fCommune)));
 }
-// List view adds the upcoming filter and chronological order.
-function filtered() {
-  return baseFiltered()
-    .filter(e => !fUpcoming || (e.date_fin || e.date_debut) >= todayIso)
-    .sort((a, b) => a.date_debut.localeCompare(b.date_debut) || a.nom.localeCompare(b.nom, "fr"));
-}
 function eventsOn(key, list) {
   return list.filter(e => key >= e.date_debut && key <= (e.date_fin || e.date_debut));
 }
 
-fetch("reunion_events.csv")
-  .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
-  .then(text => {
-    const rows = parseCSV(text.trim());
-    const headers = rows[0];
-    all = rows.slice(1).map(r => Object.fromEntries(headers.map((h, i) => [h, (r[i] ?? "").trim()])));
-    initFilters();
-    render();
-  })
-  .catch(() => {
-    document.getElementById("schedule").innerHTML = '<p class="empty">Impossible de charger les données.</p>';
-  });
+function load() {
+  document.getElementById("schedule").innerHTML = '<p class="empty">Chargement…</p>';
+  fetch("reunion_events.csv")
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(text => {
+      const rows = parseCSV(text.trim());
+      const headers = rows[0];
+      all = rows.slice(1).map(r => Object.fromEntries(headers.map((h, i) => [h, (r[i] ?? "").trim()])));
+      initFilters();
+      render();
+    })
+    .catch(() => {
+      view = "list"; // the error lives in #schedule; make sure it's the visible pane
+      syncChrome();
+      document.getElementById("schedule").innerHTML =
+        '<p class="empty">Impossible de charger les données.<br><button id="retry">Réessayer</button></p>';
+      document.getElementById("retry").onclick = load;
+      document.getElementById("status").textContent = "Impossible de charger les données.";
+    });
+}
 
 function initFilters() {
   const communes = [...new Set(all.flatMap(e => e.communes === "ALL" ? [] : e.communes.split("|")))].sort((a, b) => a.localeCompare(b, "fr"));
@@ -327,19 +387,19 @@ function initFilters() {
   catSel.onchange = e => { fCat = e.target.value; e.target.classList.toggle("active", !!fCat); render(); };
   document.getElementById("commune").onchange = e => { fCommune = e.target.value; e.target.classList.toggle("active", !!fCommune); render(); };
 
-  const upBtn = document.getElementById("upcoming");
-  upBtn.textContent = fUpcoming ? "tout voir" : "à venir";
-  upBtn.onclick = () => {
-    fUpcoming = !fUpcoming;
-    upBtn.textContent = fUpcoming ? "tout voir" : "à venir";
-    render();
-  };
-
   document.getElementById("prev").onclick = () => move(-1);
   document.getElementById("next").onclick = () => move(1);
-  document.getElementById("today").onclick = () => { cursor = { y: now.getFullYear(), m: now.getMonth() }; render(); };
+  document.getElementById("today").onclick = () => {
+    if (view === "list") scrollToNow();
+    else { cursor = { y: now.getFullYear(), m: now.getMonth() }; render(); }
+  };
   document.getElementById("v-list").onclick = () => setView("list");
   document.getElementById("v-cal").onclick = () => setView("cal");
+}
+
+function scrollToNow() {
+  const target = document.querySelector(".row.today") || document.querySelector(".row:not(.past)");
+  if (target) target.scrollIntoView({ block: "start", behavior: reducedMotion.matches ? "auto" : "smooth" });
 }
 
 function setView(v) {
@@ -354,16 +414,22 @@ function move(delta) {
   render();
 }
 
-// Dispatch to the active view; swap the contextual controls with it.
-function render() {
+// View chrome (body class, toggle state, visible pane) — safe to run before data loads.
+function syncChrome() {
   const isCal = view === "cal";
   document.body.classList.toggle("cal-view", isCal);
-  document.getElementById("v-list").setAttribute("aria-pressed", String(!isCal));
-  document.getElementById("v-cal").setAttribute("aria-pressed", String(isCal));
+  const vl = document.getElementById("v-list"), vc = document.getElementById("v-cal");
+  vl.setAttribute("aria-checked", String(!isCal)); vl.tabIndex = isCal ? -1 : 0;
+  vc.setAttribute("aria-checked", String(isCal)); vc.tabIndex = isCal ? 0 : -1;
   document.getElementById("schedule").hidden = isCal;
   document.getElementById("calendar").hidden = !isCal;
-  document.getElementById("upcoming").hidden = isCal;
-  if (isCal) renderCal(); else { document.getElementById("today").hidden = true; renderList(); }
+}
+
+// Dispatch to the active view; swap the contextual controls with it.
+function render() {
+  syncChrome();
+  if (view === "cal") renderCal();
+  else { document.getElementById("today").hidden = fUpcoming; renderList(); }
 }
 
 function renderCal() {
@@ -398,14 +464,36 @@ function renderCal() {
       `<span class="daynum">${d.getDate()}</span><span class="chips">${chips}${more}</span></button>`;
   }
   days.innerHTML = html;
-  days.querySelectorAll(".day:not(.out)").forEach(b => b.onclick = () => openDay(b.dataset.key));
+  document.getElementById("status").textContent = `Vue calendrier, ${MONTHS[m]} ${y}`;
 }
 
 function renderList() {
-  const list = filtered();
+  const base = baseFiltered()
+    .sort((a, b) => a.date_debut.localeCompare(b.date_debut) || a.nom.localeCompare(b.nom, "fr"));
+  const pastCount = base.filter(e => (e.date_fin || e.date_debut) < todayIso).length;
+  const list = shown = fUpcoming ? base.filter(e => (e.date_fin || e.date_debut) >= todayIso) : base;
+  // The fold lives at the top of the list, where the hidden events actually are.
+  const s2 = pastCount > 1 ? "s" : "";
+  const toggle = pastCount === 0 ? "" :
+    `<button class="past-toggle" id="past-toggle" aria-expanded="${!fUpcoming}">` +
+    (fUpcoming ? `Afficher les ${pastCount} événement${s2} passé${s2}` : `Masquer les ${pastCount} événement${s2} passé${s2}`) +
+    "</button>";
   const schedule = document.getElementById("schedule");
-  if (list.length === 0) {
-    schedule.innerHTML = '<p class="empty">Aucun événement ne correspond à ces filtres.</p>';
+  const n = list.length;
+  document.getElementById("status").textContent =
+    `Vue liste, ${n === 0 ? "aucun événement" : n + " événement" + (n > 1 ? "s" : "")}`;
+  if (n === 0) {
+    schedule.innerHTML = toggle + '<p class="empty">Aucun événement ne correspond à ces filtres.' +
+      (fCat || fCommune ? '<br><button id="reset">Réinitialiser les filtres</button>' : "") + "</p>";
+    const reset = document.getElementById("reset");
+    if (reset) reset.onclick = () => {
+      fCat = fCommune = "";
+      for (const id of ["cat", "commune"]) {
+        const s = document.getElementById(id);
+        s.value = ""; s.classList.remove("active");
+      }
+      render();
+    };
     return;
   }
 
@@ -422,36 +510,73 @@ function renderList() {
     current.items.push(e);
   }
 
-  schedule.innerHTML = groups.map(g => {
-    const head = `<div class="month-head"><h2>${MONTHS[g.m]} ${g.y}</h2></div>`;
+  let idx = 0;
+  schedule.innerHTML = toggle + groups.map(g => {
+    const c = g.items.length;
+    const head = `<div class="month-head"><h2>${MONTHS[g.m]} ${g.y}</h2>` +
+      `<span class="count">${c} événement${c > 1 ? "s" : ""}</span></div>`;
     const rows = g.items.map(e => {
+      const i = idx++;
       const s = catStyle(e.categorie);
       const d = new Date(e.date_debut + "T00:00:00");
       const key = iso(d);
-      // An ongoing multi-day event is not "past": compare on its end date.
-      const cls = ["row", (e.date_fin || key) < todayIso ? "past" : "", key === todayIso ? "today" : ""].join(" ").trim();
-      const loc = e.communes === "ALL" ? "🏝️ Toute l'île" : "📍 " + communesLabel(e.communes);
+      // An ongoing multi-day event is not "past" (nor missed "today"): compare on its end date.
+      const end = e.date_fin || key;
+      const isToday = key <= todayIso && end >= todayIso;
+      const cls = ["row", end < todayIso ? "past" : "", isToday ? "today" : ""].join(" ").trim();
+      // Spelled-out range: screen readers get "du 22 mai au 7 juin", not "22 mai flèche 7 juin".
       const label = `${e.nom}, ${fmtRange(e)}, ${e.categorie}, ${communesLabel(e.communes)}`;
-      const dateBlock = dd => `<span class="date"><span class="wd">${WEEKDAYS[dd.getDay()]}</span><span class="d">${dd.getDate()}</span></span>`;
-      const df = e.date_fin && e.date_fin !== e.date_debut ? new Date(e.date_fin + "T00:00:00") : null;
-      const when = df && !isNaN(df)
-        ? `${dateBlock(d)}<span class="arrow" aria-hidden="true">→</span>${dateBlock(df)}`
-        : dateBlock(d);
-      return `<button class="${cls}" data-key="${key}" aria-label="${esc(label)}"` +
-        `${key === todayIso ? ' aria-current="date"' : ""}>` +
-        `<span class="when">${when}</span>` +
-        `<span class="dot" style="--dot:${s.dot}" aria-hidden="true"></span>` +
-        `<span class="body"><h3>${esc(e.nom)}</h3>` +
-        `<span class="meta"><span class="cat" style="--fg:${s.fg}">${s.emoji} ${esc(e.categorie)}</span>` +
-        `<span class="sep">·</span><span class="loc-names">${esc(loc)}</span></span></span>` +
-        `</button>`;
+      const df = e.date_fin && e.date_fin !== e.date_debut && !isNaN(new Date(e.date_fin + "T00:00:00"))
+        ? new Date(e.date_fin + "T00:00:00") : null;
+      // Same month → compact "25–26" in the rail; across months "22–7" would mislead,
+      // so the rail keeps the start day and the meta line says "→ 7 juin".
+      const sameMonth = df && df.getMonth() === d.getMonth() && df.getFullYear() === d.getFullYear();
+      const dayTxt = sameMonth ? `${d.getDate()}–${df.getDate()}` : d.getDate();
+      const until = df && !sameMonth
+        ? `<span class="until">→ ${esc(fmtShort.format(df))}</span><span class="sep">·</span>` : "";
+      return `<li><button class="${cls}" data-i="${i}" aria-label="${esc(label)}"` +
+        `${isToday ? ' aria-current="date"' : ""}>` +
+        `<span class="when"><span class="wd">${WEEKDAYS[d.getDay()]}</span><span class="d">${dayTxt}</span></span>` +
+        `<span class="body"><span class="title">${esc(e.nom)}</span>` +
+        `<span class="meta">${until}<span class="loc-names">${PIN}${esc(communesLabel(e.communes))}</span></span></span>` +
+        `<span class="badge" style="--tint:${s.tint};--fg:${s.fg}">${esc(e.categorie)}</span>` +
+        `</button></li>`;
     }).join("");
-    return head + rows;
+    return `<section>${head}<ul class="rows">${rows}</ul></section>`;
   }).join("");
-
-  schedule.querySelectorAll(".row").forEach(b => b.onclick = () => openDay(b.dataset.key));
 }
 
+function openDialog(head, body) {
+  const dlg = document.getElementById("detail");
+  dlg.innerHTML = `<div class="dhead"><div>${head}</div>` +
+    `<button class="close" aria-label="Fermer">✕</button></div>${body}`;
+  dlg.querySelector(".close").onclick = () => dlg.close();
+  dlg.showModal();
+}
+
+// Facts block: one icon-led line per fact (dates, place, link).
+const eventBody = e => {
+  const u = safeUrl(e.lien);
+  const dashTxt = fmtRange(e, true), longTxt = fmtRange(e);
+  const dates = dashTxt === longTxt ? esc(dashTxt)
+    : `<span class="sr-only">${esc(longTxt)}</span><span aria-hidden="true">${esc(dashTxt)}</span>`;
+  return '<ul class="facts">' +
+    `<li>${CAL}<span>${dates}</span></li>` +
+    `<li>${PIN}<span>${esc(communesLabel(e.communes))}</span></li>` +
+    (u ? `<li><a href="${esc(u)}" target="_blank" rel="noopener noreferrer">site officiel ↗</a></li>` : "") +
+    "</ul>";
+};
+
+// List rows open the event itself: its name is the title, its dates spelled out.
+function openEvent(e) {
+  const s = catStyle(e.categorie);
+  openDialog(
+    `<span class="badge" style="--tint:${s.tint};--fg:${s.fg}">${esc(e.categorie)}</span>` +
+    `<h3 id="dtitle">${esc(e.nom)}</h3>`,
+    `<div class="drow">${eventBody(e)}</div>`);
+}
+
+// Calendar days keep the day dialog: that view's mental model is the day.
 function openDay(key) {
   const evs = eventsOn(key, baseFiltered());
   const title = fmtFull.format(new Date(key + "T00:00:00"));
@@ -459,28 +584,49 @@ function openDay(key) {
     ? '<p class="empty" style="padding:1rem">Aucun événement ce jour.</p>'
     : '<ul class="devlist">' + evs.map(e => {
         const s = catStyle(e.categorie);
-        const u = safeUrl(e.lien);
         return `<li class="drow" style="display:block"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem">` +
           `<h4 style="margin:0;font-size:.95rem;font-weight:600">${esc(e.nom)}</h4>` +
-          `<span class="badge" style="--tint:${s.tint};--fg:${s.fg}">${s.emoji} ${esc(e.categorie)}</span></div>` +
-          `<p class="loc">${e.communes === "ALL" ? "🏝️" : "📍"} ${esc(communesLabel(e.communes))}</p>` +
-          `<p class="dates">${fmtRange(e)}</p>` +
-          (u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">site officiel ↗</a>` : "") +
-          `</li>`;
+          `<span class="badge" style="--tint:${s.tint};--fg:${s.fg}">${esc(e.categorie)}</span></div>` +
+          eventBody(e) + `</li>`;
       }).join("") + "</ul>";
-  const dlg = document.getElementById("detail");
-  dlg.innerHTML =
-    `<div class="dhead"><div><span class="label">${evs.length} événement${evs.length > 1 ? "s" : ""}</span>` +
-    `<h3 id="dtitle" style="text-transform:capitalize">${esc(title)}</h3></div>` +
-    `<button class="close" aria-label="Fermer">✕</button></div>${body}`;
-  dlg.querySelector(".close").onclick = () => dlg.close();
-  dlg.showModal();
+  openDialog(
+    `<span class="label">${evs.length} événement${evs.length > 1 ? "s" : ""}</span>` +
+    `<h3 id="dtitle" style="text-transform:capitalize">${esc(title)}</h3>`,
+    body);
 }
 
 // Click on the backdrop → close.
 document.getElementById("detail").addEventListener("click", e => {
   if (e.target.id === "detail") e.target.close();
 });
+
+// One delegated listener per container: survives re-renders, no per-row closures.
+document.getElementById("schedule").addEventListener("click", e => {
+  if (e.target.closest("#past-toggle")) {
+    fUpcoming = !fUpcoming;
+    render();
+    document.getElementById("past-toggle")?.focus(); // re-render dropped the old node
+    return;
+  }
+  const b = e.target.closest(".row");
+  if (b) openEvent(shown[+b.dataset.i]);
+});
+document.getElementById("days").addEventListener("click", e => {
+  const b = e.target.closest(".day");
+  if (b && !b.classList.contains("out")) openDay(b.dataset.key);
+});
+
+// Radiogroup: arrow keys move between the two views.
+document.querySelector(".views").addEventListener("keydown", e => {
+  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+  e.preventDefault();
+  const next = view === "cal" ? "list" : "cal";
+  setView(next);
+  document.getElementById(next === "cal" ? "v-cal" : "v-list").focus();
+});
+
+syncChrome(); // apply the stored view before the CSV resolves (no list flash)
+load();
 </script>
 </body>
 </html>
