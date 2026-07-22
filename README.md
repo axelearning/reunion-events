@@ -28,6 +28,23 @@ Les données vivent dans [`reunion_events.csv`](reunion_events.csv). Une ligne =
 
 Merci d'éviter les doublons et de garder les lignes triées par `date_debut`.
 
+### Validation automatique
+
+Chaque pull request et chaque push sur `main` déclenche le workflow
+[`validate-csv.yml`](.github/workflows/validate-csv.yml), qui exécute
+[`scripts/validate_csv.py`](scripts/validate_csv.py). Le script vérifie le
+format des dates, la présence du `nom`, l'appartenance des `communes` aux 24
+communes de La Réunion (ou `ALL`), la `categorie` (`Culture`, `Sport`,
+`Religieux`, `Jour férié`), la validité du `lien` et le tri croissant des
+lignes par `date_debut`. Les lignes fautives sont annotées directement dans la
+pull request.
+
+Pour valider en local :
+
+```bash
+python3 scripts/validate_csv.py
+```
+
 ## Le site
 
 [`index.html`](index.html) : une seule page statique, sans dépendance ni étape de build. Elle lit le CSV et l'affiche sous forme de tableau triable avec recherche. Hébergée par GitHub Pages depuis la branche `main` ; chaque fusion de PR redéploie automatiquement le site.
