@@ -1,0 +1,30 @@
+name: Validation du CSV
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "reunion_events.csv"
+      - "scripts/validate_csv.py"
+      - ".github/workflows/validate-csv.yml"
+  pull_request:
+    paths:
+      - "reunion_events.csv"
+      - "scripts/validate_csv.py"
+      - ".github/workflows/validate-csv.yml"
+
+jobs:
+  validate:
+    name: Vérifier reunion_events.csv
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Valider le CSV
+        run: python scripts/validate_csv.py reunion_events.csv

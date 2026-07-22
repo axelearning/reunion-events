@@ -8,9 +8,9 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌋</text></svg>">
 <style>
   :root {
-    color-scheme: light; /* thème blanc figé, comme le prototype */
+    color-scheme: light; /* fixed light theme, matching the prototype */
 
-    /* — Surfaces (design system Vigie) — */
+    /* — Surfaces (Vigie design system) — */
     --background: #f7f8fa;
     --foreground: #141c2e;
     --card: #ffffff;
@@ -23,28 +23,29 @@
     --border: #d8dce5;
     --border-strong: #c5cbd8;
     --primary: #4a6fa5;
+    --primary-strong: #3b5d92; /* primary ink on tinted backgrounds (AA at 11px) */
     --primary-fg: #ffffff;
 
-    /* — États « signal » → une catégorie, une couleur (bg + texte) — */
+    /* — "Signal" states → one category, one color (bg + text) — */
     --Culture-bg: #e6eef8;           --Culture-fg: #2c5490;
-    --Sport-bg: #e8f3ec;             --Sport-fg: #2f7d4f;
+    --Sport-bg: #e8f3ec;             --Sport-fg: #276b44;
     --Religieux-bg: #f6efe2;         --Religieux-fg: #7a5d20;
     --Ferie-bg: rgba(220,74,74,.10); --Ferie-fg: #991b1b;
 
-    /* — Échelle de rayons — */
+    /* — Radius scale — */
     --r-badge: 3px; --r-sm: 5px; --r-md: 6px; --r-lg: 8px; --r-xl: 12px; --r-2xl: 16px;
 
-    /* — Élévation — */
+    /* — Elevation — */
     --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
     --shadow-md: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
     --shadow-2xl: 0 12px 32px rgba(0,0,0,.12);
 
-    /* — Mouvement — */
+    /* — Motion — */
     --motion-micro: 140ms; --motion-standard: 240ms;
     --ease-expo: cubic-bezier(.16,1,.3,1);
     --ease-standard: cubic-bezier(.2,0,0,1);
 
-    /* Geist est la typo du prototype ; system-ui en repli (police non embarquée ici). */
+    /* Geist is the prototype's typeface; system-ui as fallback (font not bundled here). */
     --font-sans: "Geist Variable", -apple-system, system-ui, sans-serif;
   }
   * { box-sizing: border-box; }
@@ -54,18 +55,21 @@
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   }
 
-  /* section-label (mono role : chiffres tabulaires, casse haute serrée) */
+  /* section-label (mono role: tabular figures, tight uppercase) */
   .label { font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
   header h1 { margin: .15rem 0 0; font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
   .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
-  select, .today {
+  select, #today {
     font: inherit; font-size: .875rem; padding: .375rem .625rem; border: 1px solid var(--muted);
     border-radius: var(--r-md); background: var(--card); color: inherit; cursor: pointer;
     transition: background var(--motion-micro) var(--ease-standard), transform var(--motion-micro) var(--ease-standard);
   }
-  .today { margin-left: auto; color: var(--muted-fg); background: none; }
-  select:hover, .today:hover { background: var(--muted); }
-  select:active, .today:active, .nav button:active { transform: scale(.98); }
+  #today { margin-left: auto; color: var(--muted-fg); background: none; }
+  select:hover, #today:hover { background: var(--muted); }
+  select:active, #today:active, .nav button:active { transform: scale(.98); }
+  /* Active filter: the state is visible without reopening the menu. */
+  select.active { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--card)); color: var(--primary-strong); }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
   .card { margin-top: 1rem; flex: 1; display: flex; flex-direction: column; border: 1px solid var(--muted); border-radius: var(--r-xl); background: var(--card); padding: 1rem; }
   .nav { display: flex; align-items: center; justify-content: center; gap: .25rem; margin-bottom: .75rem; }
@@ -84,10 +88,9 @@
   .day:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
   .day.out { visibility: hidden; pointer-events: none; }
   .day.past { opacity: .4; filter: saturate(.3); }
-  /* Aujourd'hui : liseré discret + numéro en accent (pas de pastille pleine — comme le prototype). */
-  .day.today { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--muted-fg) 30%, transparent); }
   .daynum { align-self: flex-start; font-size: 11px; font-weight: 500; color: var(--muted-fg); }
-  .day.today .daynum { font-weight: 700; color: var(--primary); }
+  /* Today: filled pill on the day number (Apple Calendar style), cell stays like the others. */
+  .day.today .daynum { background: var(--primary); color: var(--primary-fg); font-weight: 600; border-radius: 999px; min-width: 18px; text-align: center; padding: 2px 5px; margin: -2px 0 0 -3px; }
   .chips { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
   .chip {
     display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -131,7 +134,7 @@
   <div class="filters">
     <select id="cat" aria-label="Filtrer par catégorie"></select>
     <select id="commune" aria-label="Filtrer par commune"></select>
-    <button id="today" class="today" hidden>aujourd'hui</button>
+    <button id="today" hidden>aujourd'hui</button>
   </div>
 </header>
 
@@ -155,7 +158,7 @@
 <script>
 "use strict";
 
-// Parseur CSV minimal (RFC 4180) : champs entre guillemets, virgules internes, "" échappés.
+// Minimal CSV parser (RFC 4180): quoted fields, embedded commas, "" escapes.
 function parseCSV(text) {
   const rows = [[]];
   let field = "", inQuotes = false;
@@ -173,7 +176,7 @@ function parseCSV(text) {
   return rows.filter(r => r.length > 1 || r[0] !== "");
 }
 
-// Le CSV est modifiable par n'importe qui via PR : tout contenu est traité comme hostile.
+// The CSV is editable by anyone via PR: all content is treated as hostile.
 function esc(s) {
   return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
@@ -182,14 +185,14 @@ function safeUrl(s) {
   catch { return null; }
 }
 
-// Une catégorie → un emoji + un couple de tokens « signal » (fond tinté + texte).
+// One category → a pair of "signal" tokens (tinted background + text).
 const CATS = {
-  Culture: { emoji: "🎭", tint: "var(--Culture-bg)", fg: "var(--Culture-fg)" },
-  Sport: { emoji: "🏃", tint: "var(--Sport-bg)", fg: "var(--Sport-fg)" },
-  Religieux: { emoji: "🪔", tint: "var(--Religieux-bg)", fg: "var(--Religieux-fg)" },
-  "Jour férié": { emoji: "🎉", tint: "var(--Ferie-bg)", fg: "var(--Ferie-fg)" },
+  Culture: { tint: "var(--Culture-bg)", fg: "var(--Culture-fg)" },
+  Sport: { tint: "var(--Sport-bg)", fg: "var(--Sport-fg)" },
+  Religieux: { tint: "var(--Religieux-bg)", fg: "var(--Religieux-fg)" },
+  "Jour férié": { tint: "var(--Ferie-bg)", fg: "var(--Ferie-fg)" },
 };
-const catStyle = c => CATS[c] || { emoji: "📅", tint: "var(--muted)", fg: "var(--muted-fg)" };
+const catStyle = c => CATS[c] || { tint: "var(--muted)", fg: "var(--muted-fg)" };
 const communesLabel = c => c === "ALL" ? "Toute l'île" : c.split("|").join(", ");
 
 const MONTHS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
@@ -241,14 +244,14 @@ function initFilters() {
   const communes = [...new Set(all.flatMap(e => e.communes === "ALL" ? [] : e.communes.split("|")))].sort((a, b) => a.localeCompare(b, "fr"));
   const catSel = document.getElementById("cat");
   catSel.innerHTML = '<option value="">Toutes catégories</option>' +
-    Object.keys(CATS).map(c => `<option value="${esc(c)}">${catStyle(c).emoji} ${esc(c)}</option>`).join("");
+    Object.keys(CATS).map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
   document.getElementById("commune").innerHTML = '<option value="">Toute l\'île</option>' +
     communes.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
 
   document.getElementById("weekdays").innerHTML = WEEKDAYS.map(w => `<div class="wd">${w}</div>`).join("");
 
-  catSel.onchange = e => { fCat = e.target.value; render(); };
-  document.getElementById("commune").onchange = e => { fCommune = e.target.value; render(); };
+  catSel.onchange = e => { fCat = e.target.value; e.target.classList.toggle("active", !!fCat); render(); };
+  document.getElementById("commune").onchange = e => { fCommune = e.target.value; e.target.classList.toggle("active", !!fCommune); render(); };
   document.getElementById("prev").onclick = () => move(-1);
   document.getElementById("next").onclick = () => move(1);
   document.getElementById("today").onclick = () => { cursor = { y: now.getFullYear(), m: now.getMonth() }; render(); };
@@ -267,7 +270,7 @@ function render() {
   const isCurrent = y === now.getFullYear() && m === now.getMonth();
   document.getElementById("today").hidden = isCurrent;
 
-  const offset = (new Date(y, m, 1).getDay() + 6) % 7; // lundi = 0
+  const offset = (new Date(y, m, 1).getDay() + 6) % 7; // Monday = 0
   const daysInMonth = new Date(y, m + 1, 0).getDate();
   const count = Math.ceil((offset + daysInMonth) / 7) * 7;
   const days = document.getElementById("days");
@@ -319,7 +322,7 @@ function openDay(key) {
   dlg.showModal();
 }
 
-// Clic sur le fond (backdrop) → fermeture.
+// Click on the backdrop → close.
 document.getElementById("detail").addEventListener("click", e => {
   if (e.target.id === "detail") e.target.close();
 });
