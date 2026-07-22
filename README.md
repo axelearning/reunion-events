@@ -41,4 +41,4 @@ python3 -m http.server
 
 ## Licence
 
-Données et code sous licence [MIT](LICENSE) — réutilisation libre avec attribution.
+Données et code placés dans le domaine public sous [CC0 1.0](LICENSE) : réutilisation, modification et redistribution libres, y compris à des fins commerciales, sans aucune condition. Vous pouvez citer la source, mais ce n'est pas obligatoire.
