@@ -95,6 +95,11 @@ def validate_row(row: dict[str, str]) -> list[str]:
     """Valide une ligne et retourne la liste des messages d'erreur."""
     errors: list[str] = []
 
+    # DictReader range les champs au-delà des 6 colonnes sous la clé None.
+    extra_fields = row.get(None)
+    if extra_fields:
+        errors.append(f"trop de colonnes, valeur(s) en trop : {extra_fields}")
+
     date_debut_raw = (row.get("date_debut") or "").strip()
     date_fin_raw = (row.get("date_fin") or "").strip()
     nom = (row.get("nom") or "").strip()
