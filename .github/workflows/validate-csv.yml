@@ -8,10 +8,6 @@ on:
       - "scripts/validate_csv.py"
       - ".github/workflows/validate-csv.yml"
   pull_request:
-    paths:
-      - "reunion_events.csv"
-      - "scripts/validate_csv.py"
-      - ".github/workflows/validate-csv.yml"
 
 jobs:
   validate:
