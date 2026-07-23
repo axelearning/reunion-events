@@ -32,7 +32,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Générer le fichier ICS depuis le CSV
-        run: python3 generate_ics.py reunion_events.csv events.ics
+        run: python3 scripts/generate_ics.py reunion_events.csv events.ics
 
       - name: Préparer l'artefact du site
         run: |

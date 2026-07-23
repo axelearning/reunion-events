@@ -53,14 +53,14 @@ python3 -m http.server -d site
 
 ## Fichier ICS (calendrier)
 
-[`generate_ics.py`](generate_ics.py) lit le CSV et produit un fichier `events.ics` (fuseau **`Indian/Reunion`**, UTC+4) que l'on peut importer dans Google Agenda, Apple Calendrier, Outlook… Le fichier est généré avec la bibliothèque [`icalendar`](https://pypi.org/project/icalendar/), qui garantit la conformité RFC 5545 (pliage des lignes, échappement…). Le workflow de déploiement le régénère à chaque mise à jour et le publie à côté du site (lien « s'abonner au calendrier » en pied de page).
+[`scripts/generate_ics.py`](scripts/generate_ics.py) lit le CSV et produit un fichier `events.ics` (fuseau **`Indian/Reunion`**, UTC+4) que l'on peut importer dans Google Agenda, Apple Calendrier, Outlook… Le fichier est généré avec la bibliothèque [`icalendar`](https://pypi.org/project/icalendar/), qui garantit la conformité RFC 5545 (pliage des lignes, échappement…). Le workflow de déploiement le régénère à chaque mise à jour et le publie à côté du site (lien « s'abonner au calendrier » en pied de page).
 
 Pour le générer en local :
 
 ```bash
 pip install -r requirements.txt    # installe icalendar
-python3 generate_ics.py            # → events.ics
-# ou : python3 generate_ics.py <source.csv> <sortie.ics>
+python3 scripts/generate_ics.py    # → events.ics
+# ou : python3 scripts/generate_ics.py <source.csv> <sortie.ics>
 ```
 
 ## Licence
