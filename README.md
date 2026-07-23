@@ -40,14 +40,14 @@ python3 scripts/validate_csv.py
 
 ## Le site
 
-[`index.html`](index.html) : une seule page statique, sans dépendance ni étape de build. Elle lit le CSV et l'affiche sous forme de tableau triable avec recherche. Hébergée par GitHub Pages ; chaque poussée sur `main` redéploie automatiquement le site via GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)).
+[`site/`](site/) : une page statique (`index.html`, `styles.css`, `app.js`), sans dépendance ni étape de build. Elle lit le CSV et l'affiche sous forme de tableau triable avec recherche. Hébergée par GitHub Pages ; chaque poussée sur `main` redéploie automatiquement le site via GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)).
 
 > ⚙️ Le déploiement passe par GitHub Actions : dans **Settings → Pages**, choisissez **Source : GitHub Actions**.
 
 En local :
 
 ```bash
-python3 -m http.server
+python3 -m http.server -d site
 # puis ouvrir http://localhost:8000
 ```
 

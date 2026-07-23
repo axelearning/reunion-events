@@ -37,7 +37,7 @@ jobs:
       - name: Préparer l'artefact du site
         run: |
           mkdir -p _site
-          cp index.html reunion_events.csv events.ics _site/
+          cp site/index.html site/styles.css site/app.js reunion_events.csv events.ics _site/
 
       - name: Configurer GitHub Pages
         uses: actions/configure-pages@v5
