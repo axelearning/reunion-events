@@ -1,6 +1,7 @@
 .playwright-cli/
 tmp/
 node_modules/
+events.ics
 .impeccable/
 PRODUCT.md
 .agents/
