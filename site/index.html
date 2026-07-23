@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Agenda ouvert et collaboratif des événements de l'île de La Réunion.">
+<title>Événements de La Réunion</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌋</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <span class="label">Agenda collaboratif · La Réunion</span>
+  <h1>Agenda des événements</h1>
+  <div class="filters">
+    <select id="cat" aria-label="Filtrer par catégorie"></select>
+    <select id="commune" aria-label="Filtrer par commune"></select>
+    <button id="today" hidden>aujourd'hui</button>
+    <div class="views" role="radiogroup" aria-label="Affichage">
+      <button id="v-list" role="radio" aria-checked="true">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5.5 4h8M5.5 8h8M5.5 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="2.25" cy="4" r="1" fill="currentColor"/><circle cx="2.25" cy="8" r="1" fill="currentColor"/><circle cx="2.25" cy="12" r="1" fill="currentColor"/></svg>
+        Liste
+      </button>
+      <button id="v-cal" role="radio" aria-checked="false" tabindex="-1">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg>
+        Calendrier
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="schedule" id="schedule"><p class="empty">Chargement…</p></div>
+  <div id="calendar" hidden>
+    <div class="nav">
+      <button id="prev" aria-label="Mois précédent">‹</button>
+      <h2 id="month"></h2>
+      <button id="next" aria-label="Mois suivant">›</button>
+    </div>
+    <div class="grid" id="weekdays"></div>
+    <div class="grid" id="days"></div>
+  </div>
+</main>
+
+<dialog id="detail" aria-labelledby="dtitle"></dialog>
+
+<p id="status" class="sr-only" role="status"></p>
+
+<footer>
+  <a href="webcal://axelearning.github.io/reunion-events/events.ics">s'abonner au calendrier (iCal)</a>
+  <span aria-hidden="true"> · </span>
+  <a href="https://github.com/axelearning/reunion-events">proposez un événement sur GitHub ↗</a></footer>
+
+<script src="app.js"></script>
+</body>
+</html>
