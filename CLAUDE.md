@@ -29,7 +29,8 @@ There are no tests, no lint, no build.
 ## Consistency Rules
 
 - Any change to validation rules (communes, categories, formats) must land in all three places: `scripts/validate_csv.py`, `site/app.js`, and the README column table.
-- `PRODUCT.md` (untracked) defines the design intent: sober, data-first, one category = one color, WCAG AA (contrast, `prefers-reduced-motion`, keyboard nav, French ARIA labels).
+- Any change to visual tokens in `site/styles.css` (colors, radius, typography, elevation) must be mirrored in `DESIGN.md` — else the spec drifts from the code.
+- `PRODUCT.md` defines the design intent (the *why*): sober, data-first, one category = one color, WCAG AA (contrast, `prefers-reduced-motion`, keyboard nav, French ARIA labels). `DESIGN.md` documents the *how*: the concrete design system (palette, type scale, components) in Google Stitch format.
 
 ## Access URLs
 
